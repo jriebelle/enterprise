@@ -388,7 +388,7 @@ export default function ProductsPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
             <div>
               <h1 style={{ fontSize: '28px', fontWeight: 300, fontStyle: 'normal', color: '#1e293b', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
-                Products & <span style={{ color: '#ff6600', fontStyle: 'normal', fontWeight: 500 }}>Master SKUs</span>
+                Products <span style={{ color: '#ff6600', fontStyle: 'normal', fontWeight: 500 }}>(SKUs)</span>
               </h1>
               <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>
                 Manage Master SKUs for FMCG consumer brands, pharmaceutical products, pack sizes, expiry dates, and unit margins.
@@ -412,14 +412,14 @@ export default function ProductsPage() {
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
                 </svg>
-                Bulk Upload CSV
+                Bulk Product Edit
               </button>
               <button className="btn btn-primary" style={{ background: '#ff6600', color: '#ffffff' }} onClick={() => setShowAddModal(true)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                Add Product SKU
+                Add Product(s) SKU
               </button>
             </div>
           </div>
