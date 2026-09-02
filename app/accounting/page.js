@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AdminSidebar from '../components/AdminSidebar';
+import Portal from '../components/Portal';
 
 const initialTransactions = [
   { id: 'TXN-9021', date: '2026-08-30', description: 'Emzor Pharma Bulk Supply Settlement', category: 'Pharmaceuticals', type: 'Income', amount: 14850000.00, status: 'Settled' },
@@ -267,7 +268,8 @@ export default function AccountingPage() {
 
       {/* Modal: New Journal Entry */}
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+        <Portal>
+          <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div
             className="glass-card"
             style={{ width: '100%', maxWidth: '480px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}
@@ -341,6 +343,7 @@ export default function AccountingPage() {
             </form>
           </div>
         </div>
+        </Portal>
       )}
     </AdminSidebar>
   );

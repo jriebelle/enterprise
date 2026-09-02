@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import AdminSidebar from '../../components/AdminSidebar';
+import Portal from '../../components/Portal';
 
 const initialUploadRows = [
   {
@@ -587,7 +588,8 @@ export default function BulkUploadResultsPage() {
 
       {/* Informational On-Load Notice Modal */}
       {showNoticeModal && (
-        <div className="modal-overlay" onClick={() => setShowNoticeModal(false)}>
+        <Portal>
+          <div className="modal-overlay" onClick={() => setShowNoticeModal(false)}>
           <div
             className="glass-card"
             style={{
@@ -678,6 +680,7 @@ export default function BulkUploadResultsPage() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
     </AdminSidebar>
   );

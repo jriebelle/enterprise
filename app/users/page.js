@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AdminSidebar from '../components/AdminSidebar';
+import Portal from '../components/Portal';
 
 const initialUsersData = [
   {
@@ -859,7 +860,8 @@ export default function UsersPage() {
 
       {/* ── Modal: Create New Admin User ────────────────────────────── */}
       {showAddModal && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+        <Portal>
+          <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
           <div
             className="glass-card"
             style={{ width: '100%', maxWidth: '480px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}
@@ -948,11 +950,13 @@ export default function UsersPage() {
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* ── Modal: Delete User Account ──────────────────────────────── */}
       {deleteTarget && (
-        <div className="modal-overlay" onClick={() => setDeleteTarget(null)}>
+        <Portal>
+          <div className="modal-overlay" onClick={() => setDeleteTarget(null)}>
           <div
             className="glass-card"
             style={{ width: '100%', maxWidth: '440px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '18px' }}
@@ -1006,6 +1010,7 @@ export default function UsersPage() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
     </AdminSidebar>

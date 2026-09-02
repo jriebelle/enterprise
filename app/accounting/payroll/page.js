@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
+import Portal from '../../components/Portal';
 
 const initialStaffPayroll = [
   { id: 'EMP-101', name: 'Joshua Riebelle', role: 'Business Owner', department: 'Executive', gross: 2500000.00, paye: 450000.00, pension: 200000.00, net: 1850000.00, status: 'Paid', date: '2026-08-28' },
@@ -153,7 +154,8 @@ export default function PayrollPage() {
 
       {/* Modal: Run Payroll */}
       {showRunModal && (
-        <div className="modal-overlay" onClick={() => setShowRunModal(false)}>
+        <Portal>
+          <div className="modal-overlay" onClick={() => setShowRunModal(false)}>
           <div
             className="glass-card"
             style={{ width: '100%', maxWidth: '440px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '18px' }}
@@ -175,6 +177,7 @@ export default function PayrollPage() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
     </AdminSidebar>

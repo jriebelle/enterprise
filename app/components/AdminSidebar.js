@@ -186,7 +186,7 @@ export default function AdminSidebar({ children }) {
         left: 0,
         bottom: 0,
         width: sidebarWidth,
-        zIndex: 1000,
+        zIndex: 50,
         background: '#ffffff',
         borderRight: '1px solid #e2e8f0',
         display: 'flex',
@@ -568,7 +568,7 @@ export default function AdminSidebar({ children }) {
           justifyContent: 'space-between',
           position: 'sticky',
           top: 0,
-          zIndex: 900,
+          zIndex: 40,
         }}>
           {/* Breadcrumb Info */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px' }}>
@@ -581,21 +581,6 @@ export default function AdminSidebar({ children }) {
 
           {/* Right Action Icons & Status */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 12px',
-              borderRadius: '9999px',
-              background: '#f1f5f9',
-              border: '1px solid #cbd5e1',
-              color: '#1e293b',
-              fontSize: '12px',
-              fontWeight: 500,
-            }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ff6600' }}></span>
-              Sync Active (99.9%)
-            </div>
 
             <button
               title="Notifications"

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AdminSidebar from '../components/AdminSidebar';
+import Portal from '../components/Portal';
 
 const initialProducts = [
   { id: 'SKU-8801', barcode: '615110023401', name: 'Emzor Paracetamol 500mg', size: '100 Caplets', brand: 'Emzor Pharma', category: 'Analgesics', costPrice: 2800.00, sellingPrice: 3500.00, stock: 150, expiryDate: '2028-04-30', status: 'Active', iconType: 'meds' },
@@ -249,7 +250,7 @@ export default function ProductsPage() {
         if (current > 70) {
           setUploadStatusText('Registering SKUs & pack dimensions...');
         } else if (current > 35) {
-          setUploadStatusText('Validating barcode checksums & GTIN master registry...');
+          setUploadStatusText('Validating barcode checksums & GTIN registry...');
         }
       }
     }, 240);
@@ -411,7 +412,7 @@ export default function ProductsPage() {
                 Products <span style={{ color: '#ff6600', fontStyle: 'normal', fontWeight: 500 }}>(SKUs)</span>
               </h1>
               <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>
-                Manage Master SKUs for FMCG consumer brands, pharmaceutical products, pack sizes, expiry dates, and unit margins.
+                Manage Product SKUs for FMCG consumer brands, pharmaceutical products, pack sizes, expiry dates, and unit margins.
               </p>
             </div>
 
@@ -766,7 +767,8 @@ export default function ProductsPage() {
 
       {/* ── Bulk Actions Confirmation Pop-up Modals ──────────────── */}
       {bulkActionModal && (
-        <div className="modal-overlay" onClick={() => setBulkActionModal(null)}>
+        <Portal>
+          <div className="modal-overlay" onClick={() => setBulkActionModal(null)}>
           <div
             className="glass-card"
             style={{ width: '100%', maxWidth: '440px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '18px' }}
@@ -871,7 +873,7 @@ export default function ProductsPage() {
                   </h2>
                 </div>
                 <p style={{ fontSize: '14px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-                  You are about to permanently delete <strong>{selectedIds.length}</strong> selected product SKU(s) from the master database. <strong>This action cannot be undone.</strong>
+                  You are about to permanently delete <strong>{selectedIds.length}</strong> selected product SKU(s) from the database. <strong>This action cannot be undone.</strong>
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                   <button className="btn btn-secondary" onClick={() => setBulkActionModal(null)}>
@@ -885,11 +887,13 @@ export default function ProductsPage() {
             )}
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Modal: Pop-up to Edit Product (Name, Size, Cost Unit Price, Selling Unit Price, Quantity, Expiry Date, Status) */}
       {editTarget && (
-        <div className="modal-overlay" onClick={() => setEditTarget(null)}>
+        <Portal>
+          <div className="modal-overlay" onClick={() => setEditTarget(null)}>
           <div
             className="glass-card"
             style={{ width: '100%', maxWidth: '520px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}
@@ -1015,11 +1019,13 @@ export default function ProductsPage() {
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Modal: Delete Single Product SKU */}
       {deleteTarget && (
-        <div className="modal-overlay" onClick={() => setDeleteTarget(null)}>
+        <Portal>
+          <div className="modal-overlay" onClick={() => setDeleteTarget(null)}>
           <div
             className="glass-card"
             style={{ width: '100%', maxWidth: '440px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '18px' }}
@@ -1029,7 +1035,7 @@ export default function ProductsPage() {
               Delete Product SKU
             </h2>
             <p style={{ fontSize: '14px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-              Are you sure you want to delete <strong>&ldquo;{deleteTarget.name}&rdquo;</strong>? This item will be permanently removed from the master products list.
+              Are you sure you want to delete <strong>&ldquo;{deleteTarget.name}&rdquo;</strong>? This item will be permanently removed from the products list.
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
               <button className="btn btn-secondary" onClick={() => setDeleteTarget(null)}>
@@ -1041,11 +1047,13 @@ export default function ProductsPage() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Modal: Add Product(s) SKU */}
       {showAddModal && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+        <Portal>
+          <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
           <div
             className="glass-card"
             style={{ width: '100%', maxWidth: '560px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}
@@ -1058,7 +1066,7 @@ export default function ProductsPage() {
                   Add Product(s) SKU
                 </h2>
                 <p style={{ fontSize: '13px', color: '#64748b', margin: '3px 0 0 0' }}>
-                  Register individual master SKUs manually or import multiple products via CSV.
+                  Register individual Product SKUs manually or import multiple products via CSV.
                 </p>
               </div>
               <button
@@ -1115,7 +1123,7 @@ export default function ProductsPage() {
                     Add new single Product SKU
                   </h3>
                   <span style={{ fontSize: '12.5px', color: '#64748b' }}>
-                    Enter details to register an individual master product SKU.
+                    Enter details to register an individual Product SKU.
                   </span>
                 </div>
 
@@ -1252,7 +1260,7 @@ export default function ProductsPage() {
                     Add multiple new Product SKUs
                   </h3>
                   <span style={{ fontSize: '12.5px', color: '#64748b' }}>
-                    Bulk register new product master SKUs by uploading a formatted spreadsheet.
+                    Bulk register new Product SKUs by uploading a formatted spreadsheet.
                   </span>
                 </div>
 
@@ -1361,11 +1369,13 @@ export default function ProductsPage() {
             )}
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Modal: Bulk Upload CSV */}
       {showCsvModal && (
-        <div className="modal-overlay" onClick={resetUploadModal}>
+        <Portal>
+          <div className="modal-overlay" onClick={resetUploadModal}>
           <div
             className="glass-card"
             style={{ width: '100%', maxWidth: '500px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}
@@ -1454,7 +1464,7 @@ export default function ProductsPage() {
             {uploadStage === 'uploading' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 <p style={{ fontSize: '14px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-                  Processing batch <strong style={{ color: '#ff6600', fontFamily: 'monospace' }}>IMP-2026-0831-B4</strong> and validating master GTIN records.
+                  Processing batch <strong style={{ color: '#ff6600', fontFamily: 'monospace' }}>IMP-2026-0831-B4</strong> and validating GTIN records.
                 </p>
 
                 {/* Progress Card */}
@@ -1555,6 +1565,7 @@ export default function ProductsPage() {
 
           </div>
         </div>
+        </Portal>
       )}
     </AdminSidebar>
   );

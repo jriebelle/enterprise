@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AdminSidebar from '../../components/AdminSidebar';
+import Portal from '../../components/Portal';
 
 // Mock Data for Estimates / Quotes
 const initialQuotes = [
@@ -569,7 +570,8 @@ function SalesContent() {
 
       {/* Modal: Create Quote / Estimate */}
       {showQuoteModal && (
-        <div className="modal-overlay" onClick={() => setShowQuoteModal(false)}>
+        <Portal>
+          <div className="modal-overlay" onClick={() => setShowQuoteModal(false)}>
           <div
             className="glass-card"
             style={{ width: '100%', maxWidth: '480px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '18px' }}
@@ -636,6 +638,7 @@ function SalesContent() {
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
     </AdminSidebar>
