@@ -446,8 +446,9 @@ export default function ProductsPage() {
           </div>
 
           {/* Filter Status Tabs (All Products, Active, Out-of-Stock, Suspended) */}
-          <div style={{
+          <div className="filter-tabs-container" style={{
             display: 'flex',
+            flexWrap: 'wrap',
             gap: '8px',
             borderBottom: '1px solid #e2e8f0',
             paddingBottom: '12px',

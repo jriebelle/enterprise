@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 export default function AdminSidebar({ children }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
   // Expandable Tree State
@@ -14,6 +15,11 @@ export default function AdminSidebar({ children }) {
     accounting: true, // Accounting tree expanded by default
     sales: true,      // Sales sub-tree expanded by default
   });
+
+  // Automatically close mobile drawer on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   const toggleSection = (key) => {
     setExpandedSections(prev => ({
@@ -179,24 +185,11 @@ export default function AdminSidebar({ children }) {
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', color: '#1e293b', display: 'flex' }}>
       
-      {/* ── Collapsible Left Sidebar ─────────────────────────── */}
-      <aside style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        width: sidebarWidth,
-        zIndex: 50,
-        background: '#ffffff',
-        borderRight: '1px solid #e2e8f0',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        transition: 'width 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-        overflowX: 'hidden',
-        overflowY: 'auto',
-        boxShadow: '2px 0 12px rgba(0,0,0,0.02)',
-      }}>
+      {/* ── Collapsible Left Sidebar / Mobile Drawer ────────── */}
+      <aside
+        className={`admin-sidebar-aside ${mobileOpen ? 'mobile-open' : ''}`}
+        style={{ width: sidebarWidth }}
+      >
         <div>
           {/* Sidebar Top: Logo & Toggle */}
           <div style={{
@@ -204,25 +197,25 @@ export default function AdminSidebar({ children }) {
             padding: collapsed ? '0 12px' : '0 20px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'space-between',
+            justifyContent: 'space-between',
             borderBottom: '1px solid #f1f5f9',
             flexShrink: 0,
           }}>
-            {!collapsed && (
-              <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-                <Image
-                  src="/enterprise-logo.png"
-                  alt="ShopKite Enterprise Logo"
-                  width={140}
-                  height={36}
-                  priority
-                  style={{ height: '36px', width: 'auto', display: 'block' }}
-                />
-              </Link>
-            )}
+            <Link href="/dashboard" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+              <Image
+                src="/enterprise-logo.png"
+                alt="ShopKite Enterprise Logo"
+                width={140}
+                height={36}
+                priority
+                style={{ height: '36px', width: 'auto', display: (!collapsed || mobileOpen) ? 'block' : 'none' }}
+              />
+            </Link>
 
+            {/* Desktop Collapse Toggle */}
             <button
               onClick={() => setCollapsed(!collapsed)}
+              className="desktop-collapse-toggle"
               title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
               aria-label="Toggle Sidebar"
               style={{
@@ -264,6 +257,28 @@ export default function AdminSidebar({ children }) {
                 <polyline points="11 17 6 12 11 7"></polyline>
                 <polyline points="18 17 13 12 18 7"></polyline>
               </svg>
+            </button>
+
+            {/* Mobile Drawer Close Button */}
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="mobile-drawer-close-btn"
+              aria-label="Close Mobile Navigation"
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                background: '#f8fafc',
+                color: '#64748b',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '18px',
+                flexShrink: 0,
+              }}
+            >
+              ✕
             </button>
           </div>
 
@@ -327,6 +342,7 @@ export default function AdminSidebar({ children }) {
                         <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
                           <Link
                             href={item.href}
+                            onClick={() => setMobileOpen(false)}
                             title={collapsed ? item.label : undefined}
                             style={{
                               flex: 1,
@@ -435,6 +451,7 @@ export default function AdminSidebar({ children }) {
                               <Link
                                 key={sIdx}
                                 href={sub.href}
+                                onClick={() => setMobileOpen(false)}
                                 style={{
                                   padding: '7px 10px',
                                   fontSize: '13px',
@@ -547,22 +564,28 @@ export default function AdminSidebar({ children }) {
         </div>
       </aside>
 
+      {/* Mobile Drawer Backdrop */}
+      {mobileOpen && (
+        <div
+          className="mobile-drawer-backdrop"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* ── Main App Layout Wrapper ──────────────────────────── */}
-      <div style={{
-        flex: 1,
-        marginLeft: sidebarWidth,
-        transition: 'margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        minWidth: 0,
-      }}>
+      <div
+        className="admin-main-wrapper"
+        style={{
+          marginLeft: sidebarWidth,
+        }}
+      >
         {/* Top Navbar */}
         <header style={{
           height: '70px',
           background: '#ffffff',
           borderBottom: '1px solid #e2e8f0',
-          padding: '0 32px',
+          padding: '0 24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -570,13 +593,39 @@ export default function AdminSidebar({ children }) {
           top: 0,
           zIndex: 40,
         }}>
-          {/* Breadcrumb Info */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px' }}>
-            <Link href="/dashboard" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 500 }}>
-              Admin
-            </Link>
-            <span style={{ color: '#cbd5e1' }}>/</span>
-            <span style={{ color: '#1e293b', fontWeight: 600 }}>{getBreadcrumbTitle()}</span>
+          {/* Left Side: Mobile Hamburger & Breadcrumb */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="mobile-menu-toggle"
+              aria-label="Open Navigation Menu"
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                background: '#ffffff',
+                color: '#1e293b',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+
+            {/* Breadcrumb Info */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px' }}>
+              <Link href="/dashboard" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 500 }}>
+                Admin
+              </Link>
+              <span style={{ color: '#cbd5e1' }}>/</span>
+              <span style={{ color: '#1e293b', fontWeight: 600 }}>{getBreadcrumbTitle()}</span>
+            </div>
           </div>
 
           {/* Right Action Icons & Status */}

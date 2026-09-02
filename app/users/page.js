@@ -536,8 +536,8 @@ export default function UsersPage() {
             ))}
           </div>
 
-          {/* ── Master-Detail Two Column Layout ──────────────────────── */}
-          <div style={{
+          {/* ── Two Column Layout ──────────────────────── */}
+          <div className="admin-master-detail-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'minmax(320px, 390px) 1fr',
             gap: '24px',

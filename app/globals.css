@@ -125,7 +125,7 @@ h1 {
   border: 1px solid #cbd5e1;
   background: #ffffff;
   color: #0f172a;
-  font-size: 14px;
+  font-size: 16px;
   font-family: var(--font-roboto), sans-serif;
   outline: none;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
@@ -612,3 +612,100 @@ input[type="checkbox"]:checked::after {
 .admin-permission-item.granted {
   background: #fafbfc;
 }
+
+/* ── Admin Responsive Layout & Mobile Drawer ─────────────────── */
+.admin-sidebar-aside {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.02);
+  z-index: 50;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-width: 0;
+  transition: margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobile-menu-toggle {
+  display: none !important;
+}
+
+.mobile-drawer-backdrop {
+  display: none;
+}
+
+.mobile-drawer-close-btn {
+  display: none !important;
+}
+
+/* Responsive Filter Tabs & Status Pills */
+.filter-tabs-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Tablet & Mobile Breakpoints (<= 1024px) */
+@media (max-width: 1024px) {
+  .admin-main-wrapper {
+    margin-left: 0 !important;
+  }
+
+  .mobile-menu-toggle {
+    display: flex !important;
+  }
+
+  .admin-sidebar-aside {
+    width: 280px !important;
+    z-index: 99999 !important;
+    transform: translateX(-100%);
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.18);
+  }
+
+  .admin-sidebar-aside.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  .mobile-drawer-backdrop {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 99990 !important;
+    animation: overlayFadeIn 0.2s ease-out;
+  }
+
+  .mobile-drawer-close-btn {
+    display: flex !important;
+  }
+
+  .desktop-collapse-toggle {
+    display: none !important;
+  }
+
+  .admin-master-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
