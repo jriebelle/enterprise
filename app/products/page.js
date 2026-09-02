@@ -179,6 +179,26 @@ export default function ProductsPage() {
     setBulkActionModal(null);
   };
 
+  const [addMode, setAddMode] = useState('single');
+
+  const downloadCsvTemplate = (e) => {
+    if (e) e.preventDefault();
+    const headers = ['Barcode_GTIN', 'Product_Name', 'Size_Pack', 'Brand', 'Category', 'Cost_Price_NGN', 'Selling_Price_NGN', 'Initial_Stock', 'Expiry_Date', 'Status'];
+    const sampleRows = [
+      ['615110001099', 'Sample Product Item', '100g', 'Sample Brand', 'Packaged Foods', '1500.00', '2000.00', '50', '2028-12-31', 'Active'],
+      ['615110001105', 'Sample Pharma SKU', '100 Caplets', 'Sample Pharma', 'Analgesics', '2800.00', '3500.00', '120', '2028-12-31', 'Active']
+    ];
+    const csvContent = [headers.join(','), ...sampleRows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'shopkite_product_skus_template.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Bulk Upload Modal Progress & Countdown Handlers
   const resetUploadModal = () => {
     if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
@@ -1023,18 +1043,24 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* Modal: Add New Product SKU */}
+      {/* Modal: Add Product(s) SKU */}
       {showAddModal && (
         <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
           <div
             className="glass-card"
-            style={{ width: '100%', maxWidth: '520px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}
+            style={{ width: '100%', maxWidth: '560px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Modal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1e293b', margin: 0 }}>
-                Add New Product SKU
-              </h2>
+              <div>
+                <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1e293b', margin: 0 }}>
+                  Add Product(s) SKU
+                </h2>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: '3px 0 0 0' }}>
+                  Register individual master SKUs manually or import multiple products via CSV.
+                </p>
+              </div>
               <button
                 onClick={() => setShowAddModal(false)}
                 style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '20px', cursor: 'pointer' }}
@@ -1043,130 +1069,296 @@ export default function ProductsPage() {
               </button>
             </div>
 
-            <form onSubmit={handleAddProduct} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Product Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Emzor Paracetamol"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="input-field"
-                  />
+            {/* Mode Switcher Tabs */}
+            <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setAddMode('single')}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: addMode === 'single' ? 600 : 500,
+                  background: addMode === 'single' ? '#fff7ed' : 'transparent',
+                  color: addMode === 'single' ? '#ff6600' : '#64748b',
+                  border: addMode === 'single' ? '1px solid #ffedd5' : '1px solid transparent',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                Add new single Product SKU
+              </button>
+              <button
+                type="button"
+                onClick={() => setAddMode('bulk')}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: addMode === 'bulk' ? 600 : 500,
+                  background: addMode === 'bulk' ? '#fff7ed' : 'transparent',
+                  color: addMode === 'bulk' ? '#ff6600' : '#64748b',
+                  border: addMode === 'bulk' ? '1px solid #ffedd5' : '1px solid transparent',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                Add multiple new Product SKUs
+              </button>
+            </div>
+
+            {/* SECTION 1: Single SKU Form */}
+            {addMode === 'single' && (
+              <form onSubmit={handleAddProduct} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#1e293b', margin: 0 }}>
+                    Add new single Product SKU
+                  </h3>
+                  <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+                    Enter details to register an individual master product SKU.
+                  </span>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Size / Pack Size</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. 100 Caplets"
-                    value={size}
-                    onChange={(e) => setSize(e.target.value)}
-                    className="input-field"
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Product Name</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Emzor Paracetamol"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Size / Pack Size</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 100 Caplets"
+                      value={size}
+                      onChange={(e) => setSize(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Brand / Manufacturer</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Emzor Pharma"
+                      value={brand}
+                      onChange={(e) => setBrand(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Category</label>
+                    <select className="input-field" value={category} onChange={(e) => setCategory(e.target.value)}>
+                      <option value="Packaged Foods">Packaged Foods</option>
+                      <option value="Beverages">Beverages</option>
+                      <option value="Personal Care">Personal Care</option>
+                      <option value="Household Care">Household Care</option>
+                      <option value="Analgesics">Analgesics</option>
+                      <option value="Antibiotics">Antibiotics</option>
+                      <option value="Supplements">Supplements</option>
+                      <option value="First Aid">First Aid</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Cost Unit Price (₦)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      required
+                      placeholder="2800.00"
+                      value={costPrice}
+                      onChange={(e) => setCostPrice(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Selling Unit Price (₦)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      required
+                      placeholder="3500.00"
+                      value={sellingPrice}
+                      onChange={(e) => setSellingPrice(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Stock Quantity</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="100"
+                      value={stock}
+                      onChange={(e) => setStock(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Expiry Date</label>
+                    <input
+                      type="date"
+                      value={expiryDate}
+                      onChange={(e) => setExpiryDate(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Status</label>
+                    <select className="input-field" value={status} onChange={(e) => setStatus(e.target.value)}>
+                      <option value="Active">Active</option>
+                      <option value="Out-of-Stock">Out-of-Stock</option>
+                      <option value="Suspended">Suspended</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '12px' }}>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary" style={{ background: '#ff6600', color: '#ffffff' }}>
+                    Save SKU
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* SECTION 2: Bulk CSV Upload for Multiple New Product SKUs */}
+            {addMode === 'bulk' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#1e293b', margin: 0 }}>
+                    Add multiple new Product SKUs
+                  </h3>
+                  <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+                    Bulk register new product master SKUs by uploading a formatted spreadsheet.
+                  </span>
+                </div>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept=".csv"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const selectedFile = e.target.files[0].name;
+                      setShowAddModal(false);
+                      setShowCsvModal(true);
+                      handleStartBulkUpload(selectedFile);
+                    }
+                  }}
+                />
+
+                {/* Drag and Drop Zone */}
+                <div
+                  onClick={() => fileInputRef.current ? fileInputRef.current.click() : null}
+                  style={{
+                    padding: '36px 20px',
+                    border: '2px dashed #cbd5e1',
+                    borderRadius: '12px',
+                    textAlign: 'center',
+                    background: '#f8fafc',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '10px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#ff6600';
+                    e.currentTarget.style.background = '#fff7ed';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#cbd5e1';
+                    e.currentTarget.style.background = '#f8fafc';
+                  }}
+                >
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '10px',
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ff6600',
+                  }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>
+                      Drag and drop your .csv file here
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>
+                      Or click to browse from your computer
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Action Controls */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', flexWrap: 'wrap', gap: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={downloadCsvTemplate}
+                    className="btn btn-secondary"
+                    style={{ fontSize: '13px', color: '#ff6600', background: '#fff7ed', borderColor: '#ffedd5', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download template csv
+                  </button>
+
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      style={{ background: '#ff6600', color: '#ffffff' }}
+                      onClick={() => {
+                        setShowAddModal(false);
+                        setShowCsvModal(true);
+                        handleStartBulkUpload('new_products_batch.csv');
+                      }}
+                    >
+                      Upload File
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Brand / Manufacturer</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Emzor Pharma"
-                    value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
-                    className="input-field"
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Category</label>
-                  <select className="input-field" value={category} onChange={(e) => setCategory(e.target.value)}>
-                    <option value="Packaged Foods">Packaged Foods</option>
-                    <option value="Beverages">Beverages</option>
-                    <option value="Personal Care">Personal Care</option>
-                    <option value="Household Care">Household Care</option>
-                    <option value="Analgesics">Analgesics</option>
-                    <option value="Antibiotics">Antibiotics</option>
-                    <option value="Supplements">Supplements</option>
-                    <option value="First Aid">First Aid</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Cost Unit Price (₦)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    placeholder="2800.00"
-                    value={costPrice}
-                    onChange={(e) => setCostPrice(e.target.value)}
-                    className="input-field"
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Selling Unit Price (₦)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    placeholder="3500.00"
-                    value={sellingPrice}
-                    onChange={(e) => setSellingPrice(e.target.value)}
-                    className="input-field"
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr', gap: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Stock Quantity</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="100"
-                    value={stock}
-                    onChange={(e) => setStock(e.target.value)}
-                    className="input-field"
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Expiry Date</label>
-                  <input
-                    type="date"
-                    value={expiryDate}
-                    onChange={(e) => setExpiryDate(e.target.value)}
-                    className="input-field"
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>Status</label>
-                  <select className="input-field" value={status} onChange={(e) => setStatus(e.target.value)}>
-                    <option value="Active">Active</option>
-                    <option value="Out-of-Stock">Out-of-Stock</option>
-                    <option value="Suspended">Suspended</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '12px' }}>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary" style={{ background: '#ff6600', color: '#ffffff' }}>
-                  Save SKU
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
       )}
@@ -1182,7 +1374,7 @@ export default function ProductsPage() {
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1e293b', margin: 0 }}>
-                {uploadStage === 'idle' && 'Bulk Upload Products CSV'}
+                {uploadStage === 'idle' && 'Upload Edited Products'}
                 {uploadStage === 'uploading' && 'File Uploading...'}
                 {uploadStage === 'completed' && 'File Uploaded Successfully'}
               </h2>
@@ -1198,7 +1390,7 @@ export default function ProductsPage() {
             {uploadStage === 'idle' && (
               <>
                 <p style={{ fontSize: '14px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-                  Import thousands of product SKUs using a formatted CSV spreadsheet.
+                  Only upload edited products that were downloaded from the products SKU page, for fresh uploads, use the <strong><em>Add Product(s) SKU</em></strong> button
                 </p>
 
                 <input
@@ -1250,10 +1442,7 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
-                  <a href="#template" style={{ fontSize: '13px', color: '#ff6600', textDecoration: 'none', fontWeight: 500 }}>
-                    Download CSV Template
-                  </a>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '8px' }}>
                   <button className="btn btn-primary" style={{ background: '#ff6600', color: '#ffffff' }} onClick={() => handleStartBulkUpload()}>
                     Upload File
                   </button>
