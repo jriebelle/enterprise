@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: '/enterprise',
+  /* config options here */
 };
 
 export default nextConfig;
