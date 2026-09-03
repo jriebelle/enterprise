@@ -54,6 +54,8 @@ export default function ProductsPage() {
   const [showCsvModal, setShowCsvModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
 
   // Bulk Upload Progress & Countdown State
   const [uploadStage, setUploadStage] = useState('idle'); // 'idle' | 'uploading' | 'completed'
@@ -271,6 +273,33 @@ export default function ProductsPage() {
     };
   }, []);
 
+  // 2-Second Delayed Welcome Popup
+  useEffect(() => {
+    try {
+      const hideModal = localStorage.getItem('hideProductsWelcomeModal');
+      if (hideModal === 'true') return;
+    } catch (e) {
+      // ignore
+    }
+
+    const timer = setTimeout(() => {
+      setShowWelcomeModal(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleCloseWelcomeModal = () => {
+    if (dontShowAgain) {
+      try {
+        localStorage.setItem('hideProductsWelcomeModal', 'true');
+      } catch (e) {
+        // ignore
+      }
+    }
+    setShowWelcomeModal(false);
+  };
+
   // Open Edit Modal
   const openEditModal = (prod) => {
     setEditTarget(prod);
@@ -416,7 +445,44 @@ export default function ProductsPage() {
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <button
+                className="btn btn-primary"
+                style={{ background: '#ff6600', color: '#ffffff', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                onClick={() => setShowAddModal(true)}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Product(s) SKU
+              </button>
+
+              <button
+                onClick={() => setBulkActionModal('export')}
+                className="btn btn-secondary"
+                style={{ color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download Product(s) SKU
+              </button>
+
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowCsvModal(true)}
+                style={{ color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                Bulk Product Edit
+              </button>
+
               <Link
                 href="/products/upload-history"
                 className="btn btn-secondary"
@@ -428,20 +494,6 @@ export default function ProductsPage() {
                 </svg>
                 Update History
               </Link>
-              <button className="btn btn-secondary" onClick={() => setShowCsvModal(true)}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-                Bulk Product Edit
-              </button>
-              <button className="btn btn-primary" style={{ background: '#ff6600', color: '#ffffff' }} onClick={() => setShowAddModal(true)}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Add Product(s) SKU
-              </button>
             </div>
           </div>
 
@@ -535,19 +587,19 @@ export default function ProductsPage() {
                   <button onClick={() => setBulkActionModal('delete')} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px', color: '#64748b' }}>
                     Delete
                   </button>
+
+                  {/* Clear Selection Button */}
+                  <button
+                    onClick={() => setSelectedIds([])}
+                    className="btn btn-secondary"
+                    style={{ padding: '6px 12px', fontSize: '12px', color: '#64748b', background: '#ffffff' }}
+                    title="Clear selection"
+                  >
+                    Clear Selection
+                  </button>
                 </div>
               ) : (
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-                  {/* Export All Button when no checkbox selection */}
-                  <button onClick={() => setBulkActionModal('export')} className="btn btn-secondary" style={{ padding: '10px 14px', fontSize: '13px', color: '#64748b' }}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Export CSV
-                  </button>
-
                   <select
                     className="input-field"
                     style={{ width: '200px' }}
@@ -787,18 +839,26 @@ export default function ProductsPage() {
                     </svg>
                   </div>
                   <h2 style={{ fontSize: '19px', fontWeight: 600, color: '#1e293b', margin: 0 }}>
-                    Confirm CSV Export
+                    Download Product(s) SKU
                   </h2>
                 </div>
-                <p style={{ fontSize: '14px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-                  You are about to export <strong>{selectedIds.length > 0 ? selectedIds.length : filteredProducts.length}</strong> product SKUs into a CSV spreadsheet file. Do you wish to proceed with the download?
+                <p style={{ fontSize: '14px', color: '#64748b', margin: 0, lineHeight: 1.6 }}>
+                  {selectedIds.length > 0 ? (
+                    <>
+                      You are about to export <strong style={{ color: '#ff6600' }}><em>{selectedIds.length} selected SKUs</em></strong> into a CSV document. You can select a specific number of products to download or proceed with the download.
+                    </>
+                  ) : (
+                    <>
+                      You are about to export <strong style={{ color: '#ff6600' }}><em>all 25 SKUs</em></strong> into a CSV document. You can select a specific number of products to download or proceed with the download.
+                    </>
+                  )}
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                   <button className="btn btn-secondary" onClick={() => setBulkActionModal(null)}>
                     Cancel
                   </button>
                   <button className="btn btn-primary" style={{ background: '#ff6600', color: '#ffffff' }} onClick={confirmBulkExport}>
-                    Confirm & Download CSV
+                    Proceed with Download
                   </button>
                 </div>
               </>
@@ -1566,6 +1626,291 @@ export default function ProductsPage() {
 
           </div>
         </div>
+        </Portal>
+      )}
+
+      {/* Welcome & Onboarding Guide Modal */}
+      {showWelcomeModal && (
+        <Portal>
+          <div className="modal-overlay" onClick={handleCloseWelcomeModal}>
+            <div
+              className="glass-card"
+              style={{
+                maxWidth: '620px',
+                width: '100%',
+                padding: '28px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '18px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                border: '1px solid #e2e8f0',
+                background: '#ffffff',
+                borderRadius: '16px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em' }}>
+                    Welcome to the Products Page
+                  </h2>
+                  <p style={{ margin: '6px 0 0 0', fontSize: '13.5px', color: '#64748b' }}>
+                    Here&apos;s a quick rundown of how to get started:
+                  </p>
+                </div>
+                <button
+                  onClick={handleCloseWelcomeModal}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    fontSize: '20px',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    padding: '4px 8px',
+                    lineHeight: 1,
+                    borderRadius: '6px',
+                  }}
+                  aria-label="Close modal"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Rundown feature items */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                
+                {/* Item 1: Add Products SKU */}
+                <div style={{
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  background: '#f8fafc',
+                  display: 'flex',
+                  gap: '12px',
+                  alignItems: 'flex-start',
+                }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    background: '#fff7ed',
+                    border: '1px solid #ffedd5',
+                    color: '#ff6600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px',
+                  }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#1e293b' }}>
+                      Add Products SKU button:
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#475569', marginTop: '2px', lineHeight: 1.5 }}>
+                      Use this button to add <strong style={{ color: '#ff6600' }}><em>new</em></strong> single/multiple products.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Item 2: Download Product(s) SKU */}
+                <div style={{
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  background: '#f8fafc',
+                  display: 'flex',
+                  gap: '12px',
+                  alignItems: 'flex-start',
+                }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    background: '#f1f5f9',
+                    border: '1px solid #e2e8f0',
+                    color: '#334155',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px',
+                  }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#1e293b' }}>
+                      Download Product(s) SKU button:
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#475569', marginTop: '2px', lineHeight: 1.5 }}>
+                      Use this button to download all or some products in CSV format.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Item 2: Bulk Product Edit */}
+                <div style={{
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  background: '#f8fafc',
+                  display: 'flex',
+                  gap: '12px',
+                  alignItems: 'flex-start',
+                }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    background: '#f1f5f9',
+                    border: '1px solid #e2e8f0',
+                    color: '#334155',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px',
+                  }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#1e293b' }}>
+                      Bulk Product Edit button:
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#475569', marginTop: '2px', lineHeight: 1.5 }}>
+                      Use this to re-upload bulk products that were downloaded using the <strong style={{ color: '#ff6600' }}><em>Download Product(s) SKU</em></strong> button.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Item 3: Update History */}
+                <div style={{
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  background: '#f8fafc',
+                  display: 'flex',
+                  gap: '12px',
+                  alignItems: 'flex-start',
+                }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    background: '#f1f5f9',
+                    border: '1px solid #e2e8f0',
+                    color: '#334155',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px',
+                  }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#1e293b' }}>
+                      Update History button:
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#475569', marginTop: '2px', lineHeight: 1.5 }}>
+                      View ongoing updates being made to <strong style={{ color: '#ff6600' }}><em>new</em></strong> products added or updated products, either being processed or previously processed.
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Embedded Video */}
+              <div>
+                <div style={{
+                  position: 'relative',
+                  width: '100%',
+                  paddingTop: '56.25%', // 16:9 ratio
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  border: '1px solid #e2e8f0',
+                  background: '#0f172a',
+                }}>
+                  <iframe
+                    src="https://www.youtube.com/embed/v8gAsPibgmg"
+                    title="Product Catalog & SKU Tutorial"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      border: 'none',
+                    }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+
+              {/* Footer with Checkbox & Action */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '12px',
+                paddingTop: '6px',
+                borderTop: '1px solid #f1f5f9',
+              }}>
+                <label style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  color: '#475569',
+                  userSelect: 'none',
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={dontShowAgain}
+                    onChange={(e) => setDontShowAgain(e.target.checked)}
+                    style={{ width: '16px', height: '16px', accentColor: '#ff6600', cursor: 'pointer' }}
+                  />
+                  <span>Dont show this again</span>
+                </label>
+
+                <button
+                  className="btn btn-primary"
+                  onClick={handleCloseWelcomeModal}
+                  style={{
+                    background: '#ff6600',
+                    color: '#ffffff',
+                    padding: '9px 22px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    borderRadius: '8px',
+                  }}
+                >
+                  Got It, Continue
+                </button>
+              </div>
+
+            </div>
+          </div>
         </Portal>
       )}
     </AdminSidebar>
