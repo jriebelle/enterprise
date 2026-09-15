@@ -4,8 +4,47 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { logout } from '../utils/accountsApi';
+
 export default function AdminHeader() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [userName, setUserName] = useState('Enterprise Admin');
+  const [initials, setInitials] = useState('EA');
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        const name = [u.firstname, u.lastname].filter(Boolean).join(' ') || u.name || u.email;
+        if (name) setUserName(name);
+
+        const firstInitial = (u.firstname || name || 'E')[0].toUpperCase();
+        const secondInitial = (u.lastname || '')[0]?.toUpperCase() || (name.split(' ')[1] || '')[0]?.toUpperCase() || 'A';
+        setInitials(`${firstInitial}${secondInitial}`);
+      }
+    } catch {
+      // Fallback defaults
+    }
+  }, []);
+
+  const handleSignOut = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      try {
+        await logout(token);
+      } catch {
+        // Continue clearing local state even if network call fails
+      }
+    }
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+    router.push('/login');
+  };
 
   const navItems = [
     { label: 'Accounting', href: '/accounting', icon: (
@@ -124,26 +163,30 @@ export default function AdminHeader() {
             fontWeight: 700,
             color: '#fff',
           }}>
-            EA
+            {initials}
           </div>
           <div style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255, 255, 255, 0.9)' }}>
-            Enterprise Admin
+            {userName}
           </div>
         </div>
 
-        <Link
-          href="/login"
+        <button
+          onClick={handleSignOut}
           style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            fontFamily: 'inherit',
             fontSize: '13px',
             color: 'rgba(255, 255, 255, 0.5)',
-            textDecoration: 'none',
+            cursor: 'pointer',
             transition: 'color 0.2s ease',
           }}
           onMouseEnter={(e) => e.target.style.color = '#ff6600'}
           onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.5)'}
         >
           Sign Out
-        </Link>
+        </button>
       </div>
     </header>
   );
